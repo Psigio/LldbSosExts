@@ -205,12 +205,17 @@ def exec_on_heap(debugger, raw_args, result, internal_dict, echo_to_stdout = Tru
             cmd_content = run_sos_cmd(debugger, split[1] + ' ' + line, result, internal_dict, False)
             exec_output = cmd_content[0]
         print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
-
-# Call: dhbg <methodtable_address> <gc_generation_filter>
+        
 # dumpheap -mt <methodtable_address> -short
 # foreach object_address: sos GCWhere <object_address>
 # where Generation == generation_number then print
 def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
+    (unfiltered_count, gc_generation_filter, output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
+    for filtered in output:
+        print(filtered)
+    print('Done ' + str(len(output)) + ' out of ' + str(unfiltered_count) + ' were present in GC Generation ' + str(gc_generation_filter))
+
+def dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict):
     split = raw_args.split(" ")
     methodtable_address = split[0]
     gc_generation_filter = split[1]
@@ -227,10 +232,8 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
         gc_generation = filtered_values[1]
         if gc_generation == gc_generation_filter:
             output.append(filtered_values[0])
-    # We have iterated
-    for filtered in output:
-        print(filtered)
-    print('Done ' + str(len(output)) + ' out of ' + str(len(dumpheap_content)) + ' were present in GC Generation ' + str(gc_generation_filter))
+    # We have iterated across all of the available instances
+    return (len(dumpheap_content), gc_generation_filter, output)
         
 # And the initialization code to add your commands
 def __lldb_init_module(debugger, internal_dict):
