@@ -206,6 +206,7 @@ def exec_on_heap(debugger, raw_args, result, internal_dict, echo_to_stdout = Tru
             exec_output = cmd_content[0]
         print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
 
+# Call: dhbg <methodtable_address> <gc_generation_filter>
 # dumpheap -mt <methodtable_address> -short
 # foreach object_address: sos GCWhere <object_address>
 # where Generation == generation_number then print
@@ -219,17 +220,17 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
         # Each line is an object address - call GCWhere on it
         gcwhere_content = run_sos_cmd(debugger, 'sos GCWhere ' + dumpheap_line, result, internal_dict, False)
         # The GCWhere command returns a header that we need to ignore
-        gcwhere_line = gchwere_content.pop(0) # Pop the header off
-        gcwhere_line = gchwere_content.pop(0) # Pop the content off
+        gcwhere_line = gcwhere_content.pop(0) # Pop the header off
+        gcwhere_line = gcwhere_content.pop(0) # Pop the content off
         # The 1st item is the address, and the 2nd item is the GC Generation number.  The values are delimited by a variable amount of spaces, so we need to split, filter out the empty strings (None) and then convert back to a List
-        filtered_values = list(filter(None, input.split(' ')))
+        filtered_values = list(filter(None, gcwhere_line.split(' ')))
         gc_generation = filtered_values[1]
         if gc_generation == gc_generation_filter:
             output.append(filtered_values[0])
     # We have iterated
     for filtered in output:
         print(filtered)
-    print('Done ' + len(output))
+    print('Done ' + str(len(output)) + ' out of ' + str(len(dumpheap_content)) + ' were present in GC Generation ' + str(gc_generation_filter))
         
 # And the initialization code to add your commands
 def __lldb_init_module(debugger, internal_dict):
