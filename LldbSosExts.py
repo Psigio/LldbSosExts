@@ -215,6 +215,30 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
         print(filtered)
     print('Done ' + str(len(output)) + ' out of ' + str(unfiltered_count) + ' were present in GC Generation ' + str(gc_generation_filter))
 
+def dumpheap_by_generation_where_rooted(debugger, raw_args, result, internal_dict):
+    (unfiltered_count, gc_generation_filter, heap_output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
+    print('Got ' + str(len(heap_output)) + ' objects to examine for roots')
+    output = []
+    c = 0
+    for heap_item in heap_output:
+        # Check to see if this has a GCRoot
+        gcroot_content = run_sos_cmd(debugger, 'sos GCRoot -nostacks ' + heap_item, result, internal_dict, False)
+        # Filter for the summary string
+        filtered_gcroot_content = list(filter(lambda x: 'unique roots' in x, gcroot_content))
+        summary_line = filtered_gcroot_content[0]
+        # The summary_line will be in the format "Found x unique roots..."
+        root_count = int(summary_line.split(" ")[1])
+        if root_count > 0:
+            output.append(heap_item)
+        # Progress logging
+        c = c + 1
+        if (c % 10) == 0:
+            print('Checked ' + str(c) + ' objects.  So far ' + str(len(output)) + ' are rooted')
+    # We have iterated across all of the available instances
+    for filtered in output:
+        print(filtered)
+    print('Done ' + str(len(output)) + ' out of ' + str(len(heap_output)) + ' were present and GC rooted in Generation ' + str(gc_generation_filter)) 	    
+
 def dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict):
     split = raw_args.split(" ")
     methodtable_address = split[0]
