@@ -16,3 +16,5 @@ command script import <path to>/LldbSosExts.py
 - **dko** - Dumps the simplified contents of a known .NET object
 - **etec** - Expands thread execution context of first thread on the stack
 - **eoh** - Executes a command on every object address given a method table address
+- **dhbg** - Dumps heap by MethodTable reference and GC Generation
+- **dhbgr** - Dumps heap by MethodTable reference and GC Generation where the objects have a GC Root
