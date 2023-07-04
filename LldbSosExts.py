@@ -218,9 +218,16 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
 def dumpheap_by_generation_where_rooted(debugger, raw_args, result, internal_dict):
     (unfiltered_count, gc_generation_filter, heap_output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
     print('Got ' + str(len(heap_output)) + ' objects to examine for roots')
+    # Get the finalize queue and remove those objects in the finalize queue
+    finalizequeue_content = run_sos_cmd(debugger, 'sos FinalizeQueue -short', result, internal_dict, False)
+    # Convert the finalizequeue output to uppercase
+    finalizequeue_converted = list(map(lambda x: x.upper(), finalizequeue_content))
+    # Subtract those addresses in the finalizequeue from the output
+    non_finalized_output = [x for x in heap_output if x not in finalizequeue_converted]
+    print('Filtered to ' + str(len(non_finalized_output)) + ' objects to examine after checking Finalize Queue')
     output = []
     c = 0
-    for heap_item in heap_output:
+    for heap_item in non_finalized_output:
         # Check to see if this has a GCRoot
         gcroot_content = run_sos_cmd(debugger, 'sos GCRoot -nostacks ' + heap_item, result, internal_dict, False)
         # Filter for the summary string
@@ -234,10 +241,9 @@ def dumpheap_by_generation_where_rooted(debugger, raw_args, result, internal_dic
         c = c + 1
         if (c % 10) == 0:
             print('Checked ' + str(c) + ' objects.  So far ' + str(len(output)) + ' are rooted')
-    # We have iterated across all of the available instances
     for filtered in output:
         print(filtered)
-    print('Done ' + str(len(output)) + ' out of ' + str(len(heap_output)) + ' were present and GC rooted in Generation ' + str(gc_generation_filter)) 	    
+    print('Done ' + str(len(non_finalized_output)) + ' out of ' + str(len(heap_output)) + ' objects that were present and GC rooted in Generation ' + str(gc_generation_filter) + ' and were not present in the Finalize Queue of length ' + str(len(finalizequeue_converted))) 	    
 
 def dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict):
     split = raw_args.split(" ")
