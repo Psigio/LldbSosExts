@@ -275,4 +275,5 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(cmd_prefix + 'allclrstacks allclrstacks')
     debugger.HandleCommand(cmd_prefix + 'exec_on_heap eoh')
     debugger.HandleCommand(cmd_prefix + 'dumpheap_by_generation dhbg')
-    print('The "rsc,gfs,etec,dko,allclrstacks,eoh,dhbg" python commands have been installed and are ready for use.')
+    debugger.HandleCommand(cmd_prefix + 'dumpheap_by_generation_where_rooted dhbgr')
+    print('The "rsc,gfs,etec,dko,allclrstacks,eoh,dhbg,dhbgr" python commands have been installed and are ready for use.')
