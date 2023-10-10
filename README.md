@@ -24,3 +24,14 @@ eoh <mt addr> <cmd>
 ```
 
 Get the Method Table (mt) address (e.g. like from dumpheap output). The cmd is a single word command to run on each object address. The eoh command runs a `dumpheap -short -mt <mt addr>` and then runs `cmd` on each object address.
+
+## Troubleshooting
+
+If you get something like `NameError: name 'run_one_line' is not defined`, there is an issue with the Python installation. Exit LLDB and try running these commands:
+
+```shell
+sudo apt update
+sudo apt install python3
+sudo apt install python3-lldb
+ln -s /usr/lib/llvm-14/lib/python3.10/dist-packages/lldb/* /usr/lib/python3/dist-packages/lldb/
+```
