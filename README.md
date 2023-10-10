@@ -16,3 +16,11 @@ command script import <path to>/LldbSosExts.py
 - **dko** - Dumps the simplified contents of a known .NET object
 - **etec** - Expands thread execution context of first thread on the stack
 - **eoh** - Executes a command on every object address given a method table address
+
+### eoh
+
+```lldb
+eoh <mt addr> <cmd>
+```
+
+Get the Method Table (mt) address (e.g. like from dumpheap output). The cmd is a single word command to run on each object address. The eoh command runs a `dumpheap -short -mt <mt addr>` and then runs `cmd` on each object address.
