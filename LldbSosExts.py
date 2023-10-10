@@ -201,10 +201,14 @@ def exec_on_heap(debugger, raw_args, result, internal_dict, echo_to_stdout = Tru
         exec_output = ''
         if split[1] == 'dko':
             exec_output = dump_known_obj(debugger, line, result, internal_dict, False)
+            print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
         else:
             cmd_content = run_sos_cmd(debugger, split[1] + ' ' + line, result, internal_dict, False)
-            exec_output = cmd_content[0]
-        print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
+            print(line.rstrip().rjust(20) + ' ' + cmd_content[0].rstrip())
+            line_no = 0
+            while (line_no < len(cmd_content)):
+                print('                     ' + cmd_content[line_no].rstrip())
+                line_no = line_no + 1
 
 # And the initialization code to add your commands
 def __lldb_init_module(debugger, internal_dict):
