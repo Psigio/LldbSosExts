@@ -216,7 +216,7 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
     print('Done ' + str(len(output)) + ' out of ' + str(unfiltered_count) + ' were present in GC Generation ' + str(gc_generation_filter))
 
 def dumpheap_by_generation_where_rooted(debugger, raw_args, result, internal_dict):
-    (unfiltered_count, gc_generation_filter, heap_output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
+    (_, gc_generation_filter, heap_output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
     print('Got ' + str(len(heap_output)) + ' objects to examine for roots')
     # Get the finalize queue and remove those objects in the finalize queue
     finalizequeue_content = run_sos_cmd(debugger, 'sos FinalizeQueue -short', result, internal_dict, False)
@@ -250,7 +250,7 @@ def dumpheap_by_generation_implementation(debugger, raw_args, result, internal_d
     methodtable_address = split[0]
     gc_generation_filter = split[1]
     output = []
-    dumpheap_content = run_sos_cmd(debugger, 'dumpheap -short -mt ' + split[0], result, internal_dict, False)
+    dumpheap_content = run_sos_cmd(debugger, 'dumpheap -short -mt ' + methodtable_address, result, internal_dict, False)
     for dumpheap_line in dumpheap_content:
         # Each line is an object address - call GCWhere on it
         gcwhere_content = run_sos_cmd(debugger, 'sos GCWhere ' + dumpheap_line, result, internal_dict, False)
