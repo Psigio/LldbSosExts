@@ -201,10 +201,14 @@ def exec_on_heap(debugger, raw_args, result, internal_dict, echo_to_stdout = Tru
         exec_output = ''
         if split[1] == 'dko':
             exec_output = dump_known_obj(debugger, line, result, internal_dict, False)
+            print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
         else:
             cmd_content = run_sos_cmd(debugger, split[1] + ' ' + line, result, internal_dict, False)
-            exec_output = cmd_content[0]
-        print(line.rstrip().rjust(20) + ' ' + exec_output.rstrip())
+            print(line.rstrip().rjust(20) + ' ' + cmd_content[0].rstrip())
+            line_no = 0
+            while (line_no < len(cmd_content)):
+                print('                     ' + cmd_content[line_no].rstrip())
+                line_no = line_no + 1
         
 # dumpheap -mt <methodtable_address> -short
 # foreach object_address: sos GCWhere <object_address>
@@ -213,7 +217,7 @@ def dumpheap_by_generation(debugger, raw_args, result, internal_dict):
     (unfiltered_count, gc_generation_filter, output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
     for filtered in output:
         print(filtered)
-    print('Done ' + str(len(output)) + ' out of ' + str(unfiltered_count) + ' were present in GC Generation ' + str(gc_generation_filter))
+    print('Done ' + str(len(output)) + ' out of ' + str(unfiltered_count) + ' were present in GC Generation ' + str(gc_generation_filter))           
 
 def dumpheap_by_generation_where_rooted(debugger, raw_args, result, internal_dict):
     (_, gc_generation_filter, heap_output) = dumpheap_by_generation_implementation(debugger, raw_args, result, internal_dict)
